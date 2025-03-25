@@ -1,0 +1,35 @@
+
+{% extends 'header.html' %}
+{% block content %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  </head>
+  <body>
+    
+    {% load static %}
+
+<div class="hero-wrap" style="background-image: url('{% static 'images/bg_1.jpg' %}');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text justify-content-start align-items-center">
+            <div class="col-lg-6 col-md-6 ftco-animate d-flex align-items-end">
+            </div>
+            <div class="col-lg-2 col"></div>
+            <div class="col-lg-4 col-md-6 mt-0 mt-md-5 d-flex">
+                <form action="#" class="request-form ftco-animate">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <textarea class="form-control" rows="5" placeholder="Application to track the real time traffic based on the input provided"></textarea>
+</div>
+
+  </body>
+</html>
+{% endblock %}
