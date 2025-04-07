@@ -27,7 +27,46 @@
 </div>
 
 <div class="container mt-5">
-    <textarea class="form-control" rows="5" placeholder="Application to track the real time traffic based on the input provided"></textarea>
+    <h2>Traffic Light Timing</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Junction ID</th>
+                <th>Number of Vehicles</th>
+                <th>Green Light Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in traffic_data %}
+           
+            <tr>
+                <td>{{ data.junction_id }}</td>
+                <td>{{ data.number_of_vehicles }}</td>
+                <td>
+                    {% if data.number_of_vehicles < 10 %}
+                        10 seconds (Green Light)
+                    {% elif data.number_of_vehicles <= 30 %}
+                        30 seconds (Green Light)
+                    {% else %}
+                        60 seconds (Green Light)
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- Delete Button -->
+                    <form action="{% url 'delete_traffic_data' data.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        {% csrf_token %}
+                    </form>
+
+                    <!-- Update Button -->
+                    <a href="{% url 'update_traffic_data' data.id %}" class="btn btn-warning btn-sm">Update</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
   </body>

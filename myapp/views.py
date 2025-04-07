@@ -1,13 +1,14 @@
-from django.shortcuts import render  # Import render
-
+from django.shortcuts import render 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import UserData  # Import your model
+from .models import UserData  
 from django.contrib.auth import authenticate, login as auth_login
 
 def home(request):
-    return render(request, 'index.html') 
+    traffic_data = TrafficData.objects.all()
+    return render(request, 'index.html', {'traffic_data': traffic_data})
 
 def signup(request):
     if request.method == "POST":
@@ -61,7 +62,7 @@ def traffic_update(request):
         junction_id = request.POST.get('Junction')
         number_of_vehicles = request.POST.get('Number_vehicle')
 
-        # Validate data (for example, ensure number_of_vehicles is an integer)
+        # Validate data ( ensure number_of_vehicles is an integer)
         try:
             number_of_vehicles = int(number_of_vehicles)
         except ValueError:
@@ -75,7 +76,11 @@ def traffic_update(request):
         # Add a success message
         messages.success(request, 'Traffic data has been successfully updated!')
 
-        # Redirect to the home or other desired page
+        # # Send SNS notification
+        # subject = "New Traffic Update Recorded"
+        # message = f"New traffic data recorded at Junction {junction_id}: {number_of_vehicles} vehicles."
+        # send_sns_notification(subject, message)
+
         return redirect('index')  # You can change 'index' to any view you prefer
 
     # If it's a GET request, simply render the traffic_update page
@@ -89,7 +94,45 @@ def logout(request):
     return redirect('index')
 
 
+def delete_traffic_data(request, data_id):
+    """Deletes a traffic data entry."""
+    traffic_record = get_object_or_404(TrafficData, id=data_id)
+    traffic_record.delete()
+    return redirect('index')
+
+def update_traffic_data(request, data_id):
+    """Updates traffic data and sends an SNS notification."""
+    traffic_record = get_object_or_404(TrafficData, id=data_id)
+
+    if request.method == "POST":
+        new_vehicle_count = request.POST.get('number_of_vehicles')
+        if new_vehicle_count.isdigit():
+            traffic_record.number_of_vehicles = int(new_vehicle_count)
+            traffic_record.save()
+            
+            # Send SNS notification
+            subject = "Traffic Data Updated"
+            message = f"Traffic data at Junction {traffic_record.junction_id} has been updated to {new_vehicle_count} vehicles."
+            # send_sns_notification(subject, message)
+        return redirect('index')
+
+    return render(request, 'update.html', {'traffic_record': traffic_record})
 
 
+# sns_client = boto3.client(
+#     'sns',
+#     region_name='us-east-1',
+#     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+#     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+# )
+# SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:050451382260:TrafficUpdateTopic'
 
+# def send_sns_notification(subject, message):
+#     """Send an SNS email notification."""
+#     response = sns_client.publish(
+#         TopicArn=SNS_TOPIC_ARN,
+#         Subject=subject,
+#         Message=message
+#     )
+#     return response
 
